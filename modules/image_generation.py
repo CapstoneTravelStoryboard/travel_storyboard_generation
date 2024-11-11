@@ -1,9 +1,8 @@
 import requests
-import openai
+from openai import OpenAI
 from config.settings import OPENAI_API_KEY
 
-openai.api_key = OPENAI_API_KEY
-client = openai.api_key
+client = OpenAI(api_key=OPENAI_API_KEY)
 
 # DALL·E 3를 사용하여 이미지를 생성하고 저장하는 함수
 def generate_and_save_image(scene_description, destination, purpose, companion, companion_count, image_urls, save_path):

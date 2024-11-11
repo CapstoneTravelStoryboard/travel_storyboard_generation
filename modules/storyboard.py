@@ -1,10 +1,8 @@
-import openai
+from openai import OpenAI
 from modules.utils import log_to_file
 from config.settings import OPENAI_API_KEY
 
-
-openai.api_key = OPENAI_API_KEY
-client = openai.api_key
+client = OpenAI(api_key=OPENAI_API_KEY)
 
 
 # 8. GPT를 이용한 스토리보드 생성

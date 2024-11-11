@@ -1,11 +1,10 @@
 import re
-import openai
+from openai import OpenAI
 
 from modules.utils import log_to_file
 from config.settings import OPENAI_API_KEY
 
-openai.api_key = OPENAI_API_KEY
-client = openai.api_key
+client = OpenAI(api_key=OPENAI_API_KEY)
 
 # GPT를 이용해 제목 추천
 def gpt_select_title(destination, purpose, companion, companion_count, description, log_file):
