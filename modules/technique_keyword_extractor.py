@@ -9,7 +9,7 @@ client = OpenAI(api_key=OPENAI_API_KEY)
 def extract_keywords_with_rag(scene_description):
     # Retrieval 단계: 씬 설명에서 촬영기법을 식별하여 context 생성
     # 촬영기법 데이터베이스 (예: 각 기법별 설명과 임베딩)
-    with open('embedding/techniques_embeddings.json', 'r', encoding='utf-8') as f:
+    with open('C:/Users/KimTY/CapstoneDesign/travel_storyboard_generation/embedding/techniques_embeddings.json', 'r', encoding='utf-8') as f:
         techniques_db = json.load(f)
 
     # 씬 설명을 임베딩하여 가장 가까운 촬영 기법 찾기
@@ -41,11 +41,18 @@ def extract_keywords_with_rag(scene_description):
       model="gpt-4o",  # 사용하고자 하는 모델
       messages = [
         {"role": "system", "content": 
-         f"당신은 영상촬영 전문가입니다. 다음 씬의 대표 촬영 기법인{best_technique}:{best_description_embedding}에 대해서 설명해주세요. 아래 형식을 참고해주세요\
-            \n\n\
-            여기에 촬영기법에 대한 설명과 씬에서의 적용방법 설명을 간단하게 한 줄로 넣어주세요. "},
+        f"### 지시사항 ###\n"
+        f"당신은 영상촬영 전문가입니다. 주어진 촬영 기법을 설명하고, 장면에서의 적용 방법을 제시해주세요. 이 작업을 정확하게 수행하면 보상을 받을 것입니다.\n\n"
+        f"촬영 기법: {best_technique}\n"
+        f"설명 요약: {best_description_embedding}\n\n"
+        f"### 작성 형식 ###\n"
+        f"촬영 기법에 대한 설명과 이 기법이 장면에 어떻게 적용되는지 자연스럽게, 간결한 어투로 한 줄로 서술해주세요.\n\n"
+        f"예시:\n"
+        f"이 기법은 인물의 감정을 강조하기 위해 가까운 화각으로 사용되며, 촬영 시 집중감을 높여줍니다.\n"
+        },
         {"role": "user", "content": f"장면 설명:\n{scene_description}\n\n"}
-    ]
+        ],
+        temperature=0.2
     )
     
     return response.choices[0].message.content

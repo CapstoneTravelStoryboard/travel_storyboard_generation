@@ -12,7 +12,7 @@ from modules.technique_keyword_extractor import extract_keywords_with_rag
 def main(): 
     # 현재 시간을 제목으로 설정하여 로그 파일 이름 생성
     current_time_str = datetime.now().strftime("%Y-%m-%d %H-%M-%S")
-    log_directory = f"logs/{current_time_str}"
+    log_directory = f"C:/Users/KimTY/CapstoneDesign/travel_storyboard_generation/logs/{current_time_str}"
 
     # 로그 디렉토리가 없으면 생성
     os.makedirs(log_directory, exist_ok=True)
@@ -20,7 +20,7 @@ def main():
     log_file = f"{log_directory}/travel_storyboard_log.txt"
 
     # 여행지 정보 데이터베이스 
-    db = load_database("data/travel_database.csv")
+    db = load_database("C:/Users/KimTY/CapstoneDesign/travel_storyboard_generation/data/travel_database.xlsx")
     # 시/도와 구/군 선택
     selected_city, selected_district = select_city_and_district(db, log_file)
     # 선택된 시/도와 구/군에서 관광지 선택
@@ -87,7 +87,7 @@ def main():
     # 결과 출력
     for scene, keyword in keywords.items():
         print(f"{scene}:{keyword}")
-'''
+    '''
     # 씬별 이미지 생성 및 저장
     destination = place_info["name"]
     purpose = selected_theme
@@ -97,7 +97,8 @@ def main():
         generate_and_save_image(scene, destination, purpose, companion, companion_count, image_urls, scene_image_path)
         print(f"Scene {idx + 1} 이미지 저장 완료: {scene_image_path}")
         log_to_file(f"Scene {idx + 1} 이미지 저장 완료: {scene_image_path}\n", log_file)
-'''
+    '''
+
 if __name__ == "__main__":
     main()
 

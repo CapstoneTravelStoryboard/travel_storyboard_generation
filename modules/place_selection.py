@@ -3,9 +3,9 @@ from collections import OrderedDict
 
 from modules.utils import log_to_file
 
-# CSV 파일에서 여행지 데이터를 불러오는 함수
-def load_database(filename):
-    return pd.read_csv(filename, encoding="utf-8-sig", header=None, skiprows=1).values.tolist()
+# xlsx 파일에서 여행지 데이터를 불러오는 함수
+def load_database(filename, sheet_name=0):
+    return pd.read_excel(filename, sheet_name=sheet_name, header=0).values.tolist()
 
 # 1. 시/도와 구/군을 선택하는 함수
 def select_city_and_district(db, log_file):
