@@ -7,8 +7,8 @@ from config.settings import OPENAI_API_KEY
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 # GPT를 이용해 제목 추천
-def gpt_select_title(destination, purpose, companion, companion_count, description, log_file):
-    prompt = f"여행지: {destination}, 여행지 특성: {description}, 여행 목적: {purpose}, 동행인: {companion} ({companion_count}명)\n"
+def gpt_select_title(destination, purpose, companion, companion_count, season, description, log_file):
+    prompt = f"여행지: {destination}, 여행지 특성: {description}, 여행 목적: {purpose}, 여행지 계절: {season}, 동행인: {companion} ({companion_count}명)\n"
     prompt += "위 정보에 기반하여 여행 영상의 제목을 5가지 추천해줘."
     
     response = client.chat.completions.create(
@@ -33,7 +33,7 @@ def gpt_select_title(destination, purpose, companion, companion_count, descripti
     )
     
     content = response.choices[0].message.content 
-    log_to_file(f"GPT 추천 제목들: {content}\n", log_file)  # GPT 응답 기록
+    log_to_file(f"GPT 추천 제목들:\n{content}\n", log_file)  # GPT 응답 기록
     titles = re.split(r'\d+\.\s', content)[1:]  # 숫자.로 시작하는 패턴 기준으로 분리, 첫 빈 항목 제거
 
     # 출력 및 선택

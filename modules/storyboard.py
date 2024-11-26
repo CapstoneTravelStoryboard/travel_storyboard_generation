@@ -6,7 +6,7 @@ client = OpenAI(api_key=OPENAI_API_KEY)
 
 
 # 8. GPT를 이용한 스토리보드 생성
-def gpt_generate_storyboard(destination, purpose, companion, companion_count, title, intro_outro, description, log_file, image_urls):
+def gpt_generate_storyboard(destination, purpose, companion, companion_count, season, title, intro_outro, description, log_file, image_urls):
     prompt = f"""
     ### 지시사항 ###
     당신은 여행 영상 스토리보드 생성 전문가입니다. 주어진 정보를 바탕으로 적당한 개수의 씬으로 나눠서 스토리보드를 작성해주세요. 스토리보드 작성 시, 각 항목의 지침을 철저히 따르고 정확하게 작성해주세요. 다음의 지시사항을 따르면 팁을 제공할 것입니다.
@@ -25,12 +25,13 @@ def gpt_generate_storyboard(destination, purpose, companion, companion_count, ti
     3. **카메라 무빙**: 천문대를 중심으로 둥글게 빙글빙글 돌며 점점 하강해 천문대의 근접 샷으로 이어집니다.
     4. **구도**: 천문대를 중심으로 하늘과 숲이 좌우 대칭으로 배치되어 있고, 천문대가 하늘을 향해 솟아오른 느낌을 줍니다.
 
-    당신의 작업은 **여행지의 매력을 돋보이게 하는** 것입니다. 자연스럽게, 인간처럼 작성해주세요. 팁을 제공하겠습니다!
+    당신의 작업은 여행지와 인간의 움직임이 조화롭게 어우러지는 영상을 기반으로, 스토리보드 내용의 자연스러운 흐름을 만들어주세요. 여행지의 매력을 돋보이게 하고, 여행자들의 감정을 담아낼 수 있는 구성으로 작성해주세요. 자연스럽게, 인간처럼 작성해주세요. 팁을 제공하겠습니다!
     씬을 제외하고는 어떠한 추가적인 내용을 포함하지 말아주세요.
 
     여행지: {destination}
     여행지 특성: {description}
     여행 목적: {purpose}
+    여행지 계절: {season}
     동행인: {companion} ({companion_count}명)
     제목: {title}
     인트로: {intro_outro[0]}
