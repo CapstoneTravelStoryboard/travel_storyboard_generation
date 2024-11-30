@@ -4,7 +4,7 @@ from modules.cloud_storage import upload_image_to_cloud
 from modules.gpt_integration import gpt_select_title, gpt_select_intro_outro
 from modules.image_generation import generate_and_save_image_dalle
 from modules.selection import load_database, select_city_and_district, select_place, input_companion, get_place_info, select_theme, input_departure_and_arrival_dates_with_season
-from modules.storyboard import gpt_generate_storyboard
+from modules.storyboard import gpt_generate_storyboard, parse_storyboard
 from modules.utils import log_to_file, get_image_urls, save_to_excel
 from modules.technique_keyword_extractor import extract_keywords_with_rag
 
@@ -80,6 +80,11 @@ def main():
     # 스토리보드 결과 출력 및 로그 기록
     print("생성된 스토리보드:")
     print(storyboard_scenes)
+
+    # 분리된 스토리보드 데이터 리스트 
+    # 예: [[scene1, "꽃길을 걷다", {"영상": ..., "화각": ..., "카메라 무빙": ..., "구도": ...}], ...]
+    chuncked_scenes_data = parse_storyboard(storyboard_scenes)
+    print(chuncked_scenes_data)
 
     # 각 씬의 키워드를 추출 storyboard_scenes
     scenes = storyboard_scenes

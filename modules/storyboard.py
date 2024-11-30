@@ -4,7 +4,6 @@ from config.settings import OPENAI_API_KEY
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-
 # 8. GPT를 이용한 스토리보드 생성
 def gpt_generate_storyboard(destination, purpose, companion, companion_count, season, title, intro_outro, description, log_file, image_urls):
     prompt = f"""
@@ -59,4 +58,43 @@ def gpt_generate_storyboard(destination, purpose, companion, companion_count, se
         formatted_scene = f"- scene{scene.strip()}"  # 씬 번호는 기존 GPT 응답에서 유지
         storyboard_scenes.append(formatted_scene)
 
+    return storyboard_scenes
+
+def parse_storyboard(data):
+    """
+    스토리보드 텍스트 데이터를 [[scene 번호, 제목, 세부 정보 딕셔너리], ...] 형태로 변환합니다.
+    
+    Args:
+        data (list): 스토리보드 데이터 (['- scene1 "제목": ...', ...] 형태)
+    
+    Returns:
+        list: 정리된 스토리보드 데이터 리스트
+              예: [[1, "꽃길을 걷다", {"영상": ..., "화각": ..., "카메라 무빙": ..., "구도": ...}], ...]
+    """
+    storyboard_scenes = []
+    
+    # 데이터를 하나의 문자열로 병합한 후, 씬 단위로 분리
+    full_text = "\n".join(data)
+    scenes = full_text.split("- scene")
+    
+    for scene in scenes:
+        if scene.strip():  # 빈 내용 제외
+            lines = scene.strip().split("\n")
+            # 첫 줄에서 제목 추출
+            title_line = lines[0]
+            scene_number, scene_title = title_line.split(" ", 1)
+            scene_title = scene_title.strip('"').replace('":', "")  
+            
+            # 나머지 줄에서 세부 정보 추출
+            details = {}
+            for line in lines[1:]:
+                if ": " in line:  # "키: 값" 형태인 경우
+                    key, value = line.split(": ", 1)
+                    # 키에서 번호와 장식 제거
+                    cleaned_key = key.split(". ")[1].strip("*") if ". " in key else key.strip("*")
+                    details[cleaned_key] = value.strip()
+            
+            # 씬 정보를 리스트에 추가
+            storyboard_scenes.append([scene_number, scene_title, details])
+    
     return storyboard_scenes
