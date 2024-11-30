@@ -5,7 +5,7 @@ from modules.gpt_integration import gpt_select_title, gpt_select_intro_outro
 from modules.image_generation import generate_and_save_image_dalle
 from modules.selection import load_database, select_city_and_district, select_place, input_companion, get_place_info, select_theme, input_departure_and_arrival_dates_with_season
 from modules.storyboard import gpt_generate_storyboard
-from modules.utils import log_to_file, get_image_urls
+from modules.utils import log_to_file, get_image_urls, save_to_excel
 from modules.technique_keyword_extractor import extract_keywords_with_rag
 
 # 메인 함수
@@ -104,6 +104,18 @@ def main():
         print(f"Scene {idx + 1} 이미지 저장 완료: {scene_image_path}")
         log_to_file(f"\nScene {idx + 1} 이미지 저장 완료: {scene_image_path}", log_file)
     
+    # 데이터 저장
+    excel_output_path = "C:/Users/KimTY/CapstoneDesign/travel_storyboard_generation/data/travel_storyboard.xlsx"
+    save_to_excel(
+        storyboard=storyboard_scenes,
+        region_info={"city": selected_city, "district": selected_district},
+        place_info=place_info,
+        season=season,
+        companion=companion,
+        companion_count=companion_count,
+        selected_theme=selected_theme,
+        output_path=excel_output_path
+    )
 
 if __name__ == "__main__":
     main()
