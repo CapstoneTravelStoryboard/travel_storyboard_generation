@@ -5,8 +5,8 @@ from config.settings import AWS_ACCESS_KEY, AWS_SECRET_ACCESS_KEY, AWS_BUCKET_NA
 def upload_image_to_cloud(image_path, s3_file_name):
     # AWS S3 클라이언트 생성
     s3 = boto3.client('s3', 
-                      aws_access_key_id=AWS_ACCESS_KEY, #'AKIA6ELKN3HIPFHE2SOG', 
-                      aws_secret_access_key=AWS_SECRET_ACCESS_KEY) #'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'
+                      aws_access_key_id=AWS_ACCESS_KEY, 
+                      aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
     
     try:
         # S3에서 해당 파일이 이미 존재하는지 확인

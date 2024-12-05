@@ -1,13 +1,17 @@
 import re
 from openai import OpenAI
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from typing import List
 
-from modules.utils import log_to_file
 from config.settings import OPENAI_API_KEY
+
+app = FastAPI()
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 # GPT를 이용해 제목 추천
-def gpt_select_title(destination, purpose, companion, companion_count, season, description, log_file):
+def gpt_select_title(destination, purpose, companion, companion_count, season, description):
     prompt = f"여행지: {destination}, 여행지 특성: {description}, 여행 목적: {purpose}, 여행지 계절: {season}, 동행인: {companion} ({companion_count}명)\n"
     prompt += "위 정보에 기반하여 여행 영상의 제목을 5가지 추천해줘."
     
@@ -33,25 +37,16 @@ def gpt_select_title(destination, purpose, companion, companion_count, season, d
     )
     
     content = response.choices[0].message.content 
-    log_to_file(f"GPT 추천 제목들:\n{content}\n", log_file)  # GPT 응답 기록
     titles = re.split(r'\d+\.\s', content)[1:]  # 숫자.로 시작하는 패턴 기준으로 분리, 첫 빈 항목 제거
-
-    # 출력 및 선택
-    print("제목을 선택하세요:")
-    for idx, title in enumerate(titles):
-        print(f"{idx + 1}. {title}")
     
     title_choice = int(input("제목 번호 입력: ")) - 1
     selected_title = titles[title_choice]
-    
-    # 선택된 제목을 파일에 기록
-    log_to_file(f"선택한 제목: {selected_title}\n", log_file)
+
     
     return selected_title
 
-
 # GPT를 이용해 인트로/아웃트로 추천
-def gpt_select_intro_outro(title, log_file):
+def gpt_select_intro_outro(title):
     prompt = f"여행 영상 제목: {title}\n"
     prompt += "이 제목을 기반으로 인트로와 아웃트로를 5가지 추천해줘."
     
@@ -89,7 +84,6 @@ def gpt_select_intro_outro(title, log_file):
     )
     
     content = response.choices[0].message.content
-    log_to_file(f"{content}\n", log_file) # GPT 응답 파일에 기록
     sections = content.split("\n\n아웃트로:")  
     intro_section = sections[0].replace("인트로:", "").strip()  
     outro_section = sections[1].strip() if len(sections) > 1 else ""  
@@ -102,21 +96,43 @@ def gpt_select_intro_outro(title, log_file):
         outro.strip().split(" ", 1)[1] if outro[0].isdigit() and len(outro.split(" ", 1)) > 1 else outro
         for outro in outro_section.split("\n") if outro.strip()
     ]
-    
-    print("인트로를 선택하세요:")
-    for idx, intro in enumerate(intros):
-        print(f"{idx + 1}. {intro}")
-    intro_choice = int(input("인트로 번호 입력: ")) - 1
-    selected_intro = intros[intro_choice]
-    
-    print("아웃트로를 선택하세요:")
-    for idx, outro in enumerate(outros):
-        print(f"{idx + 1}. {outro}")
-    outro_choice = int(input("아웃트로 번호 입력: ")) - 1
-    selected_outro = outros[outro_choice]
-    
-    # 선택된 인트로/아웃트로를 파일에 기록
-    log_to_file(f"선택한 인트로: {selected_intro}\n", log_file)
-    log_to_file(f"선택한 아웃트로: {selected_outro}\n", log_file)
-    
-    return selected_intro, selected_outro
+
+    return intros, outros
+
+class TitleRequest(BaseModel):
+    destination: str
+    purpose: str
+    companion: str
+    companion_count: int
+    season: str
+    description: str
+
+class IntroOutroTitleRequest(BaseModel):
+    title: str  # 여행 영상 제목
+
+class IntroOutroResponse(BaseModel):
+    intros: List[str]  # 추천된 인트로 목록
+    outros: List[str]  # 추천된 아웃트로 목록
+
+@app.post("/fastapi/titles")
+def recommend_title(request: TitleRequest):
+    try:
+        titles = gpt_select_title(
+            destination=request.destination,
+            purpose=request.purpose,
+            companion=request.companion,
+            companion_count=request.companion_count,
+            season=request.season,
+            description=request.description
+        )
+        return {"titles": titles}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/fastapi/iotros", response_model=IntroOutroResponse)
+def generate_intro_outro(request: IntroOutroTitleRequest):
+    try:
+        intros, outros = gpt_select_intro_outro(title=request.title)
+        return {"intros": intros, "outros": outros}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

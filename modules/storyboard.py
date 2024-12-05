@@ -1,11 +1,15 @@
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from typing import List, Tuple
 from openai import OpenAI
-from modules.utils import log_to_file
 from config.settings import OPENAI_API_KEY
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-# 8. GPT를 이용한 스토리보드 생성
-def gpt_generate_storyboard(destination, purpose, companion, companion_count, season, title, intro_outro, description, log_file, image_urls):
+app = FastAPI()
+
+# GPT를 이용한 스토리보드 생성
+def gpt_generate_storyboard(destination, purpose, companion, companion_count, season, title, intro_outro, description, image_urls):
     prompt = f"""
     ### 지시사항 ###
     당신은 여행 영상 스토리보드 생성 전문가입니다. 주어진 정보를 바탕으로 적당한 개수의 씬으로 나눠서 스토리보드를 작성해주세요. 스토리보드 작성 시, 각 항목의 지침을 철저히 따르고 정확하게 작성해주세요. 다음의 지시사항을 따르면 팁을 제공할 것입니다.
@@ -48,7 +52,6 @@ def gpt_generate_storyboard(destination, purpose, companion, companion_count, se
     
     storyboard = response.choices[0].message.content
     print(storyboard)
-    log_to_file(f"생성된 스토리보드:\n{storyboard}\n", log_file)
     # 씬별로 나누어 저장하기 위한 리스트
     storyboard_scenes = []
 
@@ -98,3 +101,37 @@ def parse_storyboard(data):
             storyboard_scenes.append([scene_number, scene_title, details])
     
     return storyboard_scenes
+
+class StoryboardRequest(BaseModel):
+    destination: str  # 여행지
+    purpose: str  # 여행 목적
+    companion: str  # 동행인 종류
+    companion_count: int  # 동행인 수
+    season: str  # 계절
+    title: str  # 영상 제목
+    intro_outro: Tuple[str, str]  # 인트로와 아웃트로
+    description: str  # 여행지 특성
+    image_urls: List[str]  # 참조 이미지 URL 리스트
+
+class StoryboardResponse(BaseModel):
+    storyboard_scenes: List[str]  # 생성된 스토리보드 씬 리스트
+
+# FastAPI 엔드포인트: 스토리보드 생성
+@app.post("/fastapi/storyboards", response_model=StoryboardResponse)
+def generate_storyboard(request: StoryboardRequest):
+    try:
+        # GPT 스토리보드 생성 함수 호출
+        storyboard_scenes = gpt_generate_storyboard(
+            destination=request.destination,
+            purpose=request.purpose,
+            companion=request.companion,
+            companion_count=request.companion_count,
+            season=request.season,
+            title=request.title,
+            intro_outro=request.intro_outro,
+            description=request.description,
+            image_urls=request.image_urls,
+        )
+        return {"storyboard_scenes": storyboard_scenes}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
