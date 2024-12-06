@@ -70,38 +70,16 @@ class ImageGenerationResponse(BaseModel):
 
 @app.post("/fastapi/images", response_model=ImageGenerationResponse)
 def generate_and_save_image_dalle_endpoint(request: ImageGenerationRequest):
-    """
-    DALL·E 3 모델을 사용하여 이미지를 생성하고 로컬에 저장하는 엔드포인트
-    """
     try:
-        # 프롬프트 구성
-        prompt = f"""
-        You are an expert in generating images for storyboards. 
-        Create a dynamic, cinematic image based on a video storyboard scene description: {request.scene_description}. 
-        This scene is set in {request.destination}, where the purpose of the trip is {request.purpose}. 
-        The traveler is accompanied by {request.companion_count} {request.companion}(s). 
-        The scene takes place during the {request.season} season, which should influence the atmosphere, colors, and overall mood of the image. 
-        Reference the following images of the destination for accuracy in visual elements: {', '.join(request.image_urls)}.
-        Under no circumstances should the image include overlays, user interface elements, camera equipment, or any signs of filming processes. 
-        The image must solely focus on the scene itself, providing a natural, immersive view that resembles the final, edited shot of a travel video.
-        """
-
-        # DALL·E 3 이미지 생성 요청
-        response = client.images.generate(
-            model="dall-e-3",
-            prompt=prompt,
-            n=1,
-            size="1024x1024",
+        image_url = generate_and_save_image_dalle(
+            scene_description=request.scene_description,
+            destination=request.destination,
+            purpose=request.purpose,
+            companion=request.companion,
+            companion_count=request.companion_count,
+            season=request.season,
+            image_urls=request.image_urls,
         )
-        
-        # 이미지 URL 가져오기
-        image_url = response.data[0].url
-
-        # 이미지 다운로드
-        # img_data = requests.get(image_url).content
-
-        return {
-            "image_url": image_url
-        }
+        return ImageGenerationResponse(image_url=image_url)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Image generation failed: {str(e)}")

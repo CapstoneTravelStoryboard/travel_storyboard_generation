@@ -132,6 +132,10 @@ def generate_storyboard(request: StoryboardRequest):
             description=request.description,
             image_urls=request.image_urls,
         )
-        return {"storyboard_scenes": storyboard_scenes}
+        chuncked_scenes_data = parse_storyboard(storyboard_scenes)
+        return {
+            "storyboard_scenes": storyboard_scenes,
+            "chunked_storyboard_scenes": chuncked_scenes_data
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
