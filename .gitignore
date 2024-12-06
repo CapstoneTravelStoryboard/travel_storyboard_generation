@@ -1,0 +1,71 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Virtual environment
+venv/
+env/
+
+# Distribution / packaging
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Logs and temporary files
+*.log
+logs/
+tmp/
+
+# VSCode settings
+.vscode/
+config/settings.py
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# IDE specific
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Python testing
+*.pytest_cache/
+.tox/
+coverage/
+.coverage
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre
+.pyre/
+
+# System files
+*.swp
+*.bak
+*.tmp
+~$*
+
+# Git patch files
+*.patch
+
+# Ignore the images directory in data_labeling
+data_labeling/images/
